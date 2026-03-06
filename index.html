@@ -1,86 +1,899 @@
 <!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Приглашение на 8 Марта 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-body {
-font-family: Arial, sans-serif;
-padding: 20px;
-max-width: 420px;
-margin: auto;
-background: #ffffff;
-color: #111;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Jost', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+/* ══════════ SEARCH SCREEN ══════════ */
+#searchScreen {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
-h2 {
-color: #c40000;
-text-align: center;
+#searchScreen.hide { opacity: 0; transform: scale(1.06); pointer-events: none; }
+
+.search-bg {
+  position: absolute; inset: 0;
+  background: url('https://images.unsplash.com/photo-1490750967868-88df5691cc53?w=1600&auto=format&fit=crop') center/cover no-repeat;
+  filter: brightness(0.45) saturate(1.2);
 }
-input {
-width: 100%;
-padding: 12px;
-margin: 12px 0;
-border-radius: 10px;
-border: 1px solid #c40000;
-background: #fff;
+.search-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(80,20,100,0.6) 0%, rgba(200,100,150,0.4) 55%, rgba(150,180,220,0.35) 100%);
 }
-button {
-width: 100%;
-padding: 14px;
-border-radius: 12px;
-border: none;
-cursor: pointer;
-background: #c40000;
-color: #fff;
-font-size: 1rem;
+
+/* petals */
+.petals-wrap { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+.fp { position: absolute; opacity: 0; animation: fall linear infinite; }
+@keyframes fall {
+  0%   { transform: translateY(-50px) rotate(0deg); opacity: 0; }
+  8%   { opacity: 0.8; }
+  92%  { opacity: 0.4; }
+  100% { transform: translateY(108vh) rotate(600deg); opacity: 0; }
 }
-#result {
-margin-top: 20px;
-font-size: 1.2rem;
-color: #c40000;
-text-align: center;
+
+.search-content { position: relative; z-index: 2; max-width: 500px; width: 100%; }
+
+.search-tag {
+  display: inline-block;
+  background: rgba(255,255,255,0.14); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9);
+  font-size: 0.7rem; letter-spacing: 0.32em; text-transform: uppercase;
+  padding: 0.42rem 1.3rem; border-radius: 50px; margin-bottom: 1.8rem;
+  animation: fadeUp 0.8s ease both;
+}
+
+.search-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-style: italic; color: #fff; line-height: 1.05;
+  text-shadow: 0 4px 32px rgba(0,0,0,0.4);
+  margin-bottom: 0.5rem;
+  animation: fadeUp 0.9s 0.1s ease both;
+}
+
+.search-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: rgba(255,255,255,0.8); font-style: italic;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.9s 0.2s ease both;
+}
+
+.search-box {
+  display: flex; gap: 0.7rem; width: 100%; max-width: 420px; margin: 0 auto;
+  animation: fadeUp 0.9s 0.35s ease both;
+}
+
+.name-input {
+  flex: 1;
+  background: rgba(255,255,255,0.16); backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.35); border-radius: 60px;
+  padding: 0.9rem 1.5rem;
+  font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;
+  color: #fff; outline: none;
+  transition: border-color 0.3s, background 0.3s;
+}
+.name-input::placeholder { color: rgba(255,255,255,0.45); }
+.name-input:focus { border-color: #f0c987; background: rgba(255,255,255,0.22); }
+
+.search-btn {
+  background: linear-gradient(135deg, #b5679a, #7c4d99);
+  color: #fff; border: none; border-radius: 60px;
+  padding: 0.9rem 1.6rem; font-size: 1.2rem; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(124,77,153,0.45);
+  transition: transform 0.3s, box-shadow 0.3s;
+  flex-shrink: 0;
+}
+.search-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(124,77,153,0.55); }
+
+.error-msg {
+  color: #ffd54f; font-size: 0.82rem; letter-spacing: 0.05em;
+  margin-top: 0.8rem; opacity: 0; transition: opacity 0.3s; min-height: 1.2rem;
+}
+.error-msg.show { opacity: 1; }
+
+.name-hints {
+  margin-top: 1.6rem;
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  justify-content: center;
+  animation: fadeUp 0.9s 0.5s ease both;
+}
+.hint-chip {
+  background: rgba(255,255,255,0.12); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.22); color: rgba(255,255,255,0.8);
+  font-size: 0.8rem; padding: 0.35rem 1rem; border-radius: 50px; cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+.hint-chip:hover { background: rgba(255,255,255,0.25); color: #fff; }
+
+/* ══════════════════════════════
+   INVITATION PAGE
+══════════════════════════════ */
+#invitePage { display: none; opacity: 0; transition: opacity 0.8s ease; }
+#invitePage.show { display: block; opacity: 1; }
+
+/* HERO */
+.hero {
+  position: relative; min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem 1.5rem; overflow: hidden;
+}
+
+.hero-photo {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center top;
+  background-repeat: no-repeat;
+  filter: brightness(0.55) saturate(1.2);
+  transform: scale(1.05);
+  animation: slowZoom 18s ease-in-out infinite alternate; z-index: 0;
+}
+@keyframes slowZoom { from{transform:scale(1.05)} to{transform:scale(1.11)} }
+
+.hero-overlay { position: absolute; inset: 0; z-index: 1; }
+
+.petals-hero { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+.petal { position: absolute; opacity: 0; animation: fall linear infinite; }
+
+.hero-content { position: relative; z-index: 3; max-width: 680px; }
+
+.hero-tag {
+  display: inline-block;
+  background: rgba(255,255,255,0.14); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9);
+  font-size: 0.7rem; letter-spacing: 0.32em; text-transform: uppercase;
+  padding: 0.42rem 1.3rem; border-radius: 50px; margin-bottom: 1.8rem;
+  animation: fadeUp 0.8s ease both;
+}
+.hero-for {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.15rem;
+  color: rgba(255,255,255,0.75); font-style: italic; margin-bottom: 0.2rem;
+  animation: fadeUp 0.9s 0.1s ease both;
+}
+.hero-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(4rem, 13vw, 9rem);
+  font-style: italic; font-weight: 700; line-height: 0.95;
+  text-shadow: 0 6px 48px rgba(0,0,0,0.4);
+  animation: fadeUp 0.9s 0.2s ease both; margin-bottom: 0.7rem;
+}
+.hero-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem, 4vw, 2.2rem); color: #fff;
+  animation: fadeUp 0.9s 0.35s ease both;
+}
+.hero-flowers { margin-top: 1.3rem; font-size: 1.4rem; letter-spacing: 0.3rem; animation: fadeUp 0.9s 0.5s ease both; }
+
+.scroll-hint {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  color: rgba(255,255,255,0.6); font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+  animation: pulse 2.2s infinite;
+}
+.scroll-hint::after { content:''; width:1px; height:38px; background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent); }
+@keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+/* LETTER */
+.letter-section { padding: 6rem 1.5rem; text-align: center; position: relative; overflow: hidden; }
+.sec-tag { font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 500; margin-bottom: 0.9rem; }
+.sec-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4.5vw, 3rem); margin-bottom: 2.5rem; line-height: 1.2; }
+.sec-title em { font-style: italic; }
+
+.letter-card {
+  max-width: 700px; margin: 0 auto; background: #fff;
+  border-radius: 28px; padding: 3rem 2.8rem;
+  box-shadow: 0 14px 60px rgba(0,0,0,0.08); position: relative; text-align: left;
+}
+.letter-card::before {
+  content: '"'; position: absolute; top: -1.2rem; left: 2rem;
+  font-family: 'Playfair Display', serif; font-size: 7rem; line-height: 1; opacity: 0.12;
+}
+.letter-text { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.1rem, 2.5vw, 1.38rem); line-height: 1.9; }
+.letter-sig { margin-top: 2rem; font-family: 'Playfair Display', serif; font-size: 1rem; font-style: italic; text-align: right; }
+
+.divider { display: flex; align-items: center; gap: 1rem; justify-content: center; margin: 3rem 0; }
+.divider span { font-size: 1rem; }
+.divider::before, .divider::after { content: ''; flex: 1; max-width: 100px; height: 1px; }
+
+/* EVENT */
+.event-section { padding: 5rem 1.5rem; }
+.event-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+.event-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 1.2rem; margin-bottom: 3rem; }
+.ev-card {
+  background: #fff; border-radius: 20px; padding: 1.8rem 1.2rem;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.07); transition: transform 0.3s, box-shadow 0.3s;
+}
+.ev-card:hover { transform: translateY(-5px); box-shadow: 0 14px 36px rgba(0,0,0,0.11); }
+.ev-icon { font-size: 2rem; margin-bottom: 0.7rem; display: block; }
+.ev-label { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500; margin-bottom: 0.4rem; }
+.ev-val { font-family: 'Playfair Display', serif; font-size: 1.15rem; line-height: 1.3; }
+.ev-sub { font-size: 0.78rem; margin-top: 0.2rem; opacity: 0.6; }
+
+.map-wrap { border-radius: 22px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+.map-wrap iframe { width: 100%; height: 340px; display: block; border: none; }
+
+/* CTA */
+.cta-section { padding: 6rem 1.5rem; text-align: center; position: relative; overflow: hidden; }
+.cta-glow { position: absolute; width:500px; height:500px; background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+.cta-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.8rem; position: relative; }
+.cta-sub { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.1rem, 2.5vw, 1.4rem); font-style: italic; margin-bottom: 2.5rem; position: relative; }
+.cta-btn {
+  display: inline-block; padding: 1.1rem 3.5rem; color: #fff;
+  font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0.1em;
+  border: none; border-radius: 60px; cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.cta-btn:hover { transform: translateY(-4px) scale(1.02); }
+.confirmed-msg { display: none; font-family: 'Playfair Display', serif; font-size: 1.35rem; font-style: italic; margin-top: 1.5rem; animation: fadeUp 0.6s ease; }
+.hearts { display: flex; justify-content: center; gap: 0.6rem; margin-top: 2rem; font-size: 1.4rem; }
+.heart { animation: hb 1.8s ease infinite; }
+.heart:nth-child(2) { animation-delay: 0.25s; }
+.heart:nth-child(3) { animation-delay: 0.5s; }
+@keyframes hb { 0%,100%{transform:scale(1)} 30%{transform:scale(1.3)} 60%{transform:scale(1.1)} }
+
+footer { text-align: center; padding: 1.8rem 1.5rem; font-size: 0.78rem; letter-spacing: 0.08em; }
+
+/* ══════════════════════════════
+   COLLAGE SECTION
+══════════════════════════════ */
+.collage-section {
+  padding: 5rem 1.5rem 4rem;
+  text-align: center;
+}
+
+.collage-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.collage-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.collage-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  margin-bottom: 2.5rem;
+  opacity: 0.75;
+}
+
+.collage-grid {
+  display: grid;
+  gap: 14px;
+}
+
+/* 3 photos */
+.collage-grid.cols-3 {
+  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-rows: 320px;
+}
+.collage-grid.cols-3 .col-item:nth-child(1) { grid-row: 1; }
+
+/* 2 photos */
+.collage-grid.cols-2 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 360px;
+}
+
+/* 1 photo fallback */
+.collage-grid.cols-1 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 420px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.col-item {
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+  cursor: pointer;
+}
+
+.col-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.55s ease;
+}
+
+.col-item:hover img { transform: scale(1.07); }
+
+.col-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.28) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.col-item:hover .col-overlay { opacity: 1; }
+
+/* photo frame border — colour injected via JS */
+.col-item {
+  border: 3px solid transparent;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.col-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 44px rgba(0,0,0,0.18);
+}
+
+/* lightbox */
+#lightbox {
+  display: none;
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.88);
+  align-items: center; justify-content: center;
+  animation: fadeUp 0.3s ease;
+}
+#lightbox.open { display: flex; }
+#lightbox img {
+  max-width: 90vw; max-height: 88vh;
+  border-radius: 16px;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+  object-fit: contain;
+}
+#lightboxClose {
+  position: absolute; top: 1.2rem; right: 1.5rem;
+  font-size: 2rem; color: #fff; cursor: pointer; opacity: 0.8;
+  transition: opacity 0.2s, transform 0.2s;
+  background: none; border: none;
+}
+#lightboxClose:hover { opacity: 1; transform: scale(1.2); }
+
+@media (max-width: 640px) {
+  .collage-grid.cols-3 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 180px 180px;
+  }
+  .collage-grid.cols-3 .col-item:nth-child(1) {
+    grid-column: 1 / 3;
+  }
+  .collage-grid.cols-2 { grid-template-rows: 220px; }
+  .collage-grid.cols-1 { grid-template-rows: 300px; }
+}
+
+/* REVEAL */
+@keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+.reveal { opacity: 0; transform: translateY(36px); transition: opacity 0.75s ease, transform 0.75s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 600px) {
+  .letter-card { padding: 2rem 1.3rem; }
+  .map-wrap iframe { height: 260px; }
+  .search-box { flex-direction: column; }
+  .search-btn { border-radius: 60px; padding: 0.9rem; }
 }
 </style>
 </head>
 <body>
-<h2>Калькулятор баллов МУИТ</h2>
 
+<!-- ══════════ SEARCH SCREEN ══════════ -->
+<div id="searchScreen">
+  <div class="search-bg"></div>
+  <div class="search-overlay"></div>
+  <div class="petals-wrap" id="introPetals"></div>
 
-<label>РК1:</label>
-<input type="number" id="rk1" placeholder="Введите балл РК1" />
+  <div class="search-content">
+    <div class="search-tag">🌸 8 Марта · Личное приглашение</div>
+    <h1 class="search-title">Для тебя,<br>красавица</h1>
+    <p class="search-sub">Напиши своё имя и открой приглашение</p>
 
+    <div class="search-box">
+      <input
+        class="name-input" id="nameInput" type="text"
+        placeholder="Твоё имя..." maxlength="30" autocomplete="off"
+      />
+      <button class="search-btn" onclick="openInvite()">🔍</button>
+    </div>
+    <p class="error-msg" id="errorMsg">Введи своё имя 🌷</p>
 
-<label>РК2:</label>
-<input type="number" id="rk2" placeholder="Введите балл РК2" />
+    <!-- quick-pick chips -->
+    <div class="name-hints">
+      <span class="hint-chip" onclick="pickName('Алина')">Алина</span>
+      <span class="hint-chip" onclick="pickName('Аида')">Аида</span>
+      <span class="hint-chip" onclick="pickName('Акерке')">Акерке</span>
+      <span class="hint-chip" onclick="pickName('Ульзада')">Ульзада</span>
+      <span class="hint-chip" onclick="pickName('Гульдана')">Гульдана</span>
+    </div>
+  </div>
+</div>
 
+<!-- ══════════ INVITATION PAGE ══════════ -->
+<div id="invitePage">
 
-<label>Экзамен:</label>
-<input type="number" id="exam" placeholder="Введите балл экзамена" />
+  <section class="hero">
+    <div class="hero-photo" id="heroBg"></div>
+    <div class="hero-overlay" id="heroOverlay"></div>
+    <div class="petals-hero" id="heroPetals"></div>
+    <div class="hero-content">
+      <div class="hero-tag" id="heroTag">🌸 8 Марта · Личное приглашение</div>
+      <p class="hero-for">Это приглашение для</p>
+      <div class="hero-name" id="heroName">—</div>
+      <h1 class="hero-subtitle">С праздником,<br>дорогая! 🌸</h1>
+      <div class="hero-flowers" id="heroFlowers">🌸 🌷 🌺 🌸</div>
+    </div>
+    <div class="scroll-hint">листай вниз</div>
+  </section>
 
+  <section class="letter-section" id="letterSection">
+    <div class="sec-tag" id="secTag">💌 Поздравление</div>
+    <h2 class="sec-title reveal" id="secTitle">Дорогая —</h2>
+    <div class="letter-card reveal">
+      <p class="letter-text" id="letterText"></p>
+      <div class="letter-sig" id="letterSig">С любовью, твоя группа 💜</div>
+    </div>
+    <div class="divider reveal"><span>✦</span></div>
+  </section>
 
-<button onclick="calc()">Посчитать итог</button>
+  <section class="event-section" id="eventSection">
+    <div class="event-inner">
+      <div class="sec-tag" style="text-align:center">🗓 Детали вечера</div>
+      <h2 class="sec-title reveal" id="eventTitle">Ждём тебя!</h2>
+      <div class="event-grid">
+        <div class="ev-card reveal"><span class="ev-icon">📅</span><div class="ev-label">Дата</div><div class="ev-val">7 марта 2025</div><div class="ev-sub">Пятница</div></div>
+        <div class="ev-card reveal"><span class="ev-icon">🕔</span><div class="ev-label">Время</div><div class="ev-val">17:50</div><div class="ev-sub">Сбор с 17:40</div></div>
+        <div class="ev-card reveal"><span class="ev-icon" id="evIcon">🌸</span><div class="ev-label">Ресторан</div><div class="ev-val">Shafran</div><div class="ev-sub">г. Алматы</div></div>
+        <div class="ev-card reveal"><span class="ev-icon">📍</span><div class="ev-label">Адрес</div><div class="ev-val">Абылай хана, 62</div><div class="ev-sub">г. Алматы</div></div>
+      </div>
+      <div class="map-wrap reveal" id="mapWrap">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2906.9!2d76.941588!3d43.2622191!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38836bb82edcd5fd%3A0x49ce6cbdbd132b40!2sSHAFRAN!5e0!3m2!1sru!2skz!4v1700000000000" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </section>
 
+  <section class="cta-section" id="ctaSection">
+    <div class="cta-glow"></div>
+    <h2 class="cta-title reveal" id="ctaTitle">Придёшь? 🥂</h2>
+    <p class="cta-sub reveal">Мы уже считаем дни до встречи с тобой</p>
+    <button class="cta-btn reveal" id="ctaBtn" onclick="confirmCome()">💐 Да, приду!</button>
+    <p class="confirmed-msg" id="confirmedMsg"></p>
+    <div class="hearts reveal" id="heartsDiv">
+      <span class="heart" id="h1">🌸</span>
+      <span class="heart">💜</span>
+      <span class="heart" id="h2">🌸</span>
+    </div>
+  </section>
 
-<div id="result"></div>
+  <!-- ══════ COLLAGE ══════ -->
+  <section class="collage-section" id="collageSection">
+    <div class="collage-inner">
+      <div class="sec-tag" id="colTag" style="text-align:center">📸 Наши моменты</div>
+      <h2 class="collage-title reveal" id="colTitle">Вспомним вместе</h2>
+      <p class="collage-sub reveal" id="colSub">Лучшие моменты остаются навсегда 🌸</p>
+      <div class="collage-grid reveal" id="collageGrid"></div>
+    </div>
+  </section>
 
+  <!-- lightbox -->
+  <div id="lightbox" onclick="closeLightbox()">
+    <button id="lightboxClose" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" src="" alt="">
+  </div>
+
+  <footer id="footerEl">
+    Сделано с <span id="footerHeart">♥</span> специально для тебя &nbsp;·&nbsp; 7 Марта 2025
+  </footer>
+</div>
 
 <script>
-function calc() {
-const rk1 = parseFloat(document.getElementById('rk1').value) || 0;
-const rk2 = parseFloat(document.getElementById('rk2').value) || 0;
-const exam = parseFloat(document.getElementById('exam').value) || 0;
+/* ══════════════════════════════════════════════════════
+   DATA — 5 girls, each with unique theme + photo path
+══════════════════════════════════════════════════════ */
+const girls = {
+  'алина': {
+    nameRu: 'Алина',
+    // ─── 🖼 ФОТО АЛИНЫ ──────────────────────────────
+    // Замени на путь к фото: 'photos/alina.jpg'
+    photo: 'photos/alina.jpg',
+    // ────────────────────────────────────────────────
+    heroOverlay: 'linear-gradient(170deg, rgba(58,26,40,0.6) 0%, rgba(192,100,130,0.35) 55%, rgba(240,201,135,0.3) 100%)',
+    nameColor:   '#f0c987',
+    tag:         '🌹 8 Марта · Личное приглашение',
+    flowers:     '🌹 🌸 🌺 🌹',
+    icon:        '🌹',
+    secColor:    '#c06882',
+    letterBg:    'linear-gradient(180deg, #fdf0f4 0%, #fff5e8 100%)',
+    eventBg:     'linear-gradient(135deg, #fce8f0 0%, #fff5e0 100%)',
+    ctaBg:       'linear-gradient(135deg, #fce8f0 0%, #fdf5e0 50%, #f0eeff 100%)',
+    btnGrad:     'linear-gradient(135deg, #c06882, #9e4060)',
+    btnShadow:   'rgba(192,104,130,0.45)',
+    footerBg:    '#3a1a28',
+    footerHeart: '#e8a4b8',
+    mapBorder:   'rgba(232,164,184,0.4)',
+    dividerColor:'#e8a4b8',
+    confirmedColor: '#9e4060',
+    h1: '🌹', h2: '🌹',
+    collageBg:   'linear-gradient(135deg, #fdf0f4 0%, #fff5e0 100%)',
+    collageAccent: 'rgba(232,164,184,0.5)',
+    // ─── 🖼 ФОТО КОЛЛАЖА АЛИНЫ ──────────────────────────────────
+    // Добавь 2 или 3 фото. Пример: ['photos/alina_1.jpg', 'photos/alina_2.jpg']
+    collagePhotos: ['photos/alina_1.jpg', 'photos/alina_2.jpg', 'photos/alina_3.jpg'],
+    // ────────────────────────────────────────────────────────────
+    letter: `Алина, ты — человек, рядом с которым всегда легко и тепло.
+      Твоя <strong style="color:#c06882">искренность и открытость</strong> делают нашу группу особенной.
+      Когда ты рядом — всё становится чуть светлее и добрее. 🌹
+      <br><br>
+      В этот <em style="color:#9e4060;font-style:italic">весенний праздник</em> хочется пожелать тебе только самого лучшего:
+      любви, которая окрыляет, улыбок без причины и людей, которые ценят тебя такой, какая ты есть.
+      <br><br>
+      Ты заслуживаешь <strong style="color:#c06882">всего самого прекрасного</strong> — и мы очень рады,
+      что ты часть нашей маленькой команды. С 8 Марта, Алина! 💐`,
+  },
 
+  'аида': {
+    nameRu: 'Аида',
+    // ─── 🖼 ФОТО АЙДЫ ───────────────────────────────
+    // Замени на путь к фото: 'photos/aida.jpg'
+    photo: 'photos/aida.jpg',
+    // ────────────────────────────────────────────────
+    heroOverlay: 'linear-gradient(170deg, rgba(30,16,53,0.65) 0%, rgba(100,70,180,0.35) 55%, rgba(180,160,220,0.3) 100%)',
+    nameColor:   '#d8c8ff',
+    tag:         '💜 8 Марта · Личное приглашение',
+    flowers:     '🌷 💜 🌸 🌷',
+    icon:        '🌷',
+    secColor:    '#7c5cbf',
+    letterBg:    'linear-gradient(180deg, #f3eeff 0%, #e8f0ff 100%)',
+    eventBg:     'linear-gradient(135deg, #ede8ff 0%, #e0e8ff 100%)',
+    ctaBg:       'linear-gradient(135deg, #ede8ff 0%, #dce8ff 50%, #e8f5ff 100%)',
+    btnGrad:     'linear-gradient(135deg, #7c5cbf, #4a2d99)',
+    btnShadow:   'rgba(124,92,191,0.45)',
+    footerBg:    '#1e1035',
+    footerHeart: '#b39ddb',
+    mapBorder:   'rgba(179,157,219,0.4)',
+    dividerColor:'#b39ddb',
+    confirmedColor: '#5c3d9e',
+    h1: '🌷', h2: '🌷',
+    collageBg:   'linear-gradient(135deg, #f3eeff 0%, #e8f0ff 100%)',
+    collageAccent: 'rgba(179,157,219,0.5)',
+    // ─── 🖼 ФОТО КОЛЛАЖА АИДЫ ───────────────────────────────────
+    collagePhotos: ['photos/aida_1.jpg', 'photos/aida_2.jpg', 'photos/aida_3.jpg'],
+    // ────────────────────────────────────────────────────────────
+    letter: `Аида, ты — та, кто всегда знает, как поднять настроение и вдохновить.
+      Твой <strong style="color:#7c5cbf">ум, чувство юмора и энергия</strong> — это то, что заряжает всех вокруг.
+      Рядом с тобой никогда не бывает скучно! 💜
+      <br><br>
+      Пусть этот <em style="color:#5c3d9e;font-style:italic">весенний праздник</em> принесёт тебе море цветов,
+      тёплых слов и незабываемых моментов. Ты достойна самого лучшего —
+      и это не просто слова, это правда.
+      <br><br>
+      <strong style="color:#7c5cbf">С 8 Марта, Аида!</strong> Мы так рады, что ты есть в нашей жизни. 🌷`,
+  },
 
-const total = (rk1 * 0.3) + (rk2 * 0.3) + (exam * 0.4);
-document.getElementById('result').textContent = 'Итоговый балл: ' + total.toFixed(2);
+  'акерке': {
+    nameRu: 'Акерке',
+    // ─── 🖼 ФОТО АКЕРКЕ ─────────────────────────────
+    // Замени на путь к фото: 'photos/akerke.jpg'
+    photo: 'photos/akerke.jpg',
+    // ────────────────────────────────────────────────
+    heroOverlay: 'linear-gradient(170deg, rgba(13,43,40,0.65) 0%, rgba(40,130,120,0.35) 55%, rgba(128,203,196,0.3) 100%)',
+    nameColor:   '#a8f0e8',
+    tag:         '🌿 8 Марта · Личное приглашение',
+    flowers:     '🌿 🌸 🌺 🌿',
+    icon:        '🌿',
+    secColor:    '#2e8b84',
+    letterBg:    'linear-gradient(180deg, #edf7f6 0%, #f0fff8 100%)',
+    eventBg:     'linear-gradient(135deg, #e0f5f3 0%, #e8fff5 100%)',
+    ctaBg:       'linear-gradient(135deg, #dff5f3 0%, #e8fff5 50%, #f0f8ff 100%)',
+    btnGrad:     'linear-gradient(135deg, #2e8b84, #1a6060)',
+    btnShadow:   'rgba(46,139,132,0.45)',
+    footerBg:    '#0d2b28',
+    footerHeart: '#80cbc4',
+    mapBorder:   'rgba(128,203,196,0.4)',
+    dividerColor:'#80cbc4',
+    confirmedColor: '#1a6b64',
+    h1: '🌿', h2: '🌿',
+    collageBg:   'linear-gradient(135deg, #edf7f6 0%, #f0fff8 100%)',
+    collageAccent: 'rgba(128,203,196,0.5)',
+    // ─── 🖼 ФОТО КОЛЛАЖА АКЕРКЕ ─────────────────────────────────
+    collagePhotos: ['photos/akerke_1.jpg', 'photos/akerke_2.jpg', 'photos/akerke_3.jpg'],
+    // ────────────────────────────────────────────────────────────
+    letter: `Акерке, ты — человек удивительной внутренней силы и красоты.
+      Твоя <strong style="color:#2e8b84">спокойная уверенность и мудрость</strong> всегда вдохновляют тех,
+      кто рядом. Ты как весенний ветер — лёгкая, свежая и настоящая. 🌿
+      <br><br>
+      В этот <em style="color:#1a6b64;font-style:italic">особенный день</em> пусть жизнь подарит тебе всё то,
+      о чём ты мечтаешь. Пусть рядом будут только добрые и искренние люди,
+      а каждое утро начинается с улыбки.
+      <br><br>
+      <strong style="color:#2e8b84">С 8 Марта, Акерке!</strong> Ты украшаешь нашу группу своим присутствием. 💐`,
+  },
 
+  'ульзада': {
+    nameRu: 'Ульзада',
+    // ─── 🖼 ФОТО УЛЬЗАДЫ ────────────────────────────
+    // Замени на путь к фото: 'photos/ulzada.jpg'
+    photo: 'photos/ulzada.jpg',
+    // ────────────────────────────────────────────────
+    heroOverlay: 'linear-gradient(170deg, rgba(13,32,56,0.65) 0%, rgba(40,100,180,0.35) 55%, rgba(144,202,249,0.3) 100%)',
+    nameColor:   '#ffd54f',
+    tag:         '💙 8 Марта · Личное приглашение',
+    flowers:     '💙 🌸 ✨ 💙',
+    icon:        '💙',
+    secColor:    '#1976d2',
+    letterBg:    'linear-gradient(180deg, #eef6ff 0%, #fff8ee 100%)',
+    eventBg:     'linear-gradient(135deg, #e3f2fd 0%, #fff8e1 100%)',
+    ctaBg:       'linear-gradient(135deg, #e3f2fd 0%, #fff8e1 50%, #f3e5f5 100%)',
+    btnGrad:     'linear-gradient(135deg, #1976d2, #0d47a1)',
+    btnShadow:   'rgba(25,118,210,0.45)',
+    footerBg:    '#0d2038',
+    footerHeart: '#90caf9',
+    mapBorder:   'rgba(144,202,249,0.4)',
+    dividerColor:'#90caf9',
+    confirmedColor: '#0d47a1',
+    h1: '💙', h2: '💙',
+    collageBg:   'linear-gradient(135deg, #eef6ff 0%, #fff8ee 100%)',
+    collageAccent: 'rgba(144,202,249,0.5)',
+    // ─── 🖼 ФОТО КОЛЛАЖА УЛЬЗАДЫ ────────────────────────────────
+    collagePhotos: ['photos/ulzada_1.jpg', 'photos/ulzada_2.jpg', 'photos/ulzada_3.jpg'],
+    // ────────────────────────────────────────────────────────────
+    letter: `Ульзада, твоя <strong style="color:#1565c0">целеустремлённость и искренность</strong> — пример для всех нас.
+      Ты умеешь добиваться своего с улыбкой, и это восхищает.
+      В тебе есть что-то особенное — свет, который притягивает. 💙
+      <br><br>
+      Пусть в этот <em style="color:#0d47a1;font-style:italic">весенний праздник</em> все твои мечты начнут сбываться,
+      а рядом всегда будут люди, которые любят тебя и верят в тебя.
+      Ты этого заслуживаешь — полностью.
+      <br><br>
+      <strong style="color:#1565c0">С 8 Марта, Ульзада!</strong> Мы так рады, что ты с нами. ✨`,
+  },
 
-// Подсчёт нужного балла на экзамене для 70
-const neededExam = ((70 - (rk1*0.3 + rk2*0.3)) / 0.4).toFixed(2);
-if (neededExam > 0 && neededExam <= 100) {
-document.getElementById('result').textContent += '\nЧтобы получить 70, нужно набрать на экзамене: ' + neededExam;
-} else if (neededExam <= 0) {
-document.getElementById('result').textContent += '\nВы уже набрали достаточно баллов для 70.';
-} else {
-document.getElementById('result').textContent += '\nК сожалению, набрать 70 невозможно.';
+  'гульдана': {
+    nameRu: 'Гульдана',
+    // ─── 🖼 ФОТО ГУЛЬДАНЫ ───────────────────────────
+    // Замени на путь к фото: 'photos/guldana.jpg'
+    photo: 'photos/guldana.jpg',
+    // ────────────────────────────────────────────────
+    heroOverlay: 'linear-gradient(170deg, rgba(62,32,0,0.65) 0%, rgba(200,120,30,0.35) 55%, rgba(255,204,128,0.3) 100%)',
+    nameColor:   '#ffe082',
+    tag:         '🌻 8 Марта · Личное приглашение',
+    flowers:     '🌻 🌸 🌺 🌻',
+    icon:        '🌻',
+    secColor:    '#e65100',
+    letterBg:    'linear-gradient(180deg, #fff8ee 0%, #fff3e0 100%)',
+    eventBg:     'linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%)',
+    ctaBg:       'linear-gradient(135deg, #fff3e0 0%, #fce4ec 50%, #f3e5f5 100%)',
+    btnGrad:     'linear-gradient(135deg, #e65100, #bf360c)',
+    btnShadow:   'rgba(230,81,0,0.45)',
+    footerBg:    '#3e2000',
+    footerHeart: '#ffcc80',
+    mapBorder:   'rgba(255,204,128,0.5)',
+    dividerColor:'#ffcc80',
+    confirmedColor: '#bf360c',
+    h1: '🌻', h2: '🌻',
+    collageBg:   'linear-gradient(135deg, #fff8ee 0%, #fff3e0 100%)',
+    collageAccent: 'rgba(255,204,128,0.55)',
+    // ─── 🖼 ФОТО КОЛЛАЖА ГУЛЬДАНЫ ───────────────────────────────
+    collagePhotos: ['photos/guldana_1.jpg', 'photos/guldana_2.jpg', 'photos/guldana_3.jpg'],
+    // ────────────────────────────────────────────────────────────
+    letter: `Гульдана, ты — как солнце нашей группы. Твоя <strong style="color:#bf360c">теплота, доброта
+      и неиссякаемая энергия</strong> заряжают всех вокруг. Рядом с тобой
+      всегда становится радостнее и уютнее. 🌻
+      <br><br>
+      Пусть в этот <em style="color:#e65100;font-style:italic">прекрасный весенний праздник</em> жизнь возвращает тебе
+      столько же тепла, сколько ты даришь другим. Ты заслуживаешь
+      всего самого лучшего — успеха, любви и счастья без края.
+      <br><br>
+      <strong style="color:#bf360c">С 8 Марта, Гульдана!</strong> Ты — наш солнечный свет. 🌟`,
+  }
+};
+
+// ── Pick name from chip ──
+function pickName(n) {
+  document.getElementById('nameInput').value = n;
+  document.getElementById('nameInput').focus();
 }
+
+// ── Enter key ──
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') openInvite();
+});
+
+// ── Open invite ──
+function openInvite() {
+  const raw   = document.getElementById('nameInput').value.trim();
+  const err   = document.getElementById('errorMsg');
+  if (!raw) { err.classList.add('show'); return; }
+  err.classList.remove('show');
+
+  const key  = raw.toLowerCase();
+  const girl = girls[key];
+
+  if (!girl) {
+    err.textContent = '«' + raw + '» не найдена в списке 🌷 Проверь имя';
+    err.classList.add('show');
+    return;
+  }
+
+  applyTheme(girl);
+
+  // hide search, show page
+  document.getElementById('searchScreen').classList.add('hide');
+  setTimeout(() => {
+    const page = document.getElementById('invitePage');
+    page.style.display = 'block';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      page.classList.add('show');
+      initReveal();
+      spawnConfetti();
+    }));
+    window.scrollTo(0, 0);
+  }, 800);
 }
+
+// ── Apply girl's theme ──
+function applyTheme(g) {
+  // hero
+  document.getElementById('heroBg').style.backgroundImage = "url('" + g.photo + "')";
+  document.getElementById('heroOverlay').style.background  = g.heroOverlay;
+  document.getElementById('heroName').style.color          = g.nameColor;
+  document.getElementById('heroName').textContent          = g.nameRu;
+  document.getElementById('heroTag').textContent           = g.tag;
+  document.getElementById('heroFlowers').textContent       = g.flowers;
+  document.getElementById('evIcon').textContent            = g.icon;
+
+  // letter section
+  document.getElementById('secTag').style.color            = g.secColor;
+  document.getElementById('secTitle').innerHTML            = 'Дорогая <em style="color:' + g.secColor + '">' + g.nameRu + '</em>';
+  document.getElementById('letterText').innerHTML          = g.letter;
+  document.getElementById('letterSig').style.color         = g.secColor;
+  document.querySelector('.letter-card::before');
+  document.getElementById('letterSection').style.background = g.letterBg;
+
+  // dividers
+  document.querySelectorAll('.divider::before, .divider::after').forEach(el => {});
+  // inject dynamic divider style
+  injectStyle('.divider::before { background: linear-gradient(to right, transparent, ' + g.dividerColor + ') !important; }' +
+              '.divider::after  { background: linear-gradient(to left,  transparent, ' + g.dividerColor + ') !important; }');
+
+  // event & cta bg
+  document.getElementById('eventSection').style.background = g.eventBg;
+  document.getElementById('ctaSection').style.background   = g.ctaBg;
+  document.getElementById('eventTitle').textContent        = 'Ждём тебя, ' + g.nameRu + '!';
+  document.getElementById('ctaTitle').textContent          = g.nameRu + ', придёшь? 🥂';
+
+  // button
+  const btn = document.getElementById('ctaBtn');
+  btn.style.background  = g.btnGrad;
+  btn.style.boxShadow   = '0 8px 30px ' + g.btnShadow;
+
+  // confirmed
+  document.getElementById('confirmedMsg').style.color = g.confirmedColor;
+
+  // hearts
+  document.getElementById('h1').textContent = g.h1;
+  document.getElementById('h2').textContent = g.h2;
+
+  // map border
+  document.getElementById('mapWrap').style.border = '2px solid ' + g.mapBorder;
+
+  // footer
+  const footer = document.getElementById('footerEl');
+  footer.style.background = g.footerBg;
+  footer.style.color = 'rgba(255,255,255,0.4)';
+  document.getElementById('footerHeart').style.color = g.footerHeart;
+  footer.innerHTML = 'Сделано с <span style="color:' + g.footerHeart + '">♥</span> специально для ' + g.nameRu + ' &nbsp;·&nbsp; 7 Марта 2025';
+
+  // collage section
+  document.getElementById('collageSection').style.background = g.collageBg;
+  document.getElementById('colTag').style.color   = g.secColor;
+  document.getElementById('colTitle').style.color = g.secColor;
+  buildCollage(g.collagePhotos, g.collageAccent);
+
+  // hero petals
+  const pc = document.getElementById('heroPetals');
+  pc.innerHTML = '';
+  const emojis = ['🌸','🌷','✿','❀','🌺'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('span');
+    p.className = 'petal';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.cssText = `left:${Math.random()*100}vw;animation-duration:${8+Math.random()*10}s;animation-delay:${Math.random()*12}s;font-size:${0.9+Math.random()*1.1}rem`;
+    pc.appendChild(p);
+  }
+}
+
+function injectStyle(css) {
+  const el = document.getElementById('dynStyle') || (() => {
+    const s = document.createElement('style'); s.id = 'dynStyle'; document.head.appendChild(s); return s;
+  })();
+  el.textContent = css;
+}
+
+// ── Confirm ──
+function confirmCome() {
+  const name = document.getElementById('heroName').textContent;
+  const btn  = document.getElementById('ctaBtn');
+  const msg  = document.getElementById('confirmedMsg');
+  btn.textContent   = '✅ Отлично!';
+  btn.style.background  = 'linear-gradient(135deg,#2ecc71,#1abc9c)';
+  btn.style.boxShadow   = '0 8px 30px rgba(46,204,113,0.45)';
+  btn.style.pointerEvents = 'none';
+  msg.style.display = 'block';
+  msg.textContent   = name + ', мы тебя ждём! До встречи 🌷';
+  spawnConfetti();
+}
+
+// ── Scroll reveal ──
+function initReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 90);
+    });
+  }, { threshold: 0.13 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+// ── Build collage ──
+function buildCollage(photos, accent) {
+  const grid = document.getElementById('collageGrid');
+  grid.innerHTML = '';
+
+  const count = photos.length;
+  grid.className = 'collage-grid reveal cols-' + (count >= 3 ? '3' : count === 2 ? '2' : '1');
+
+  photos.forEach((src, i) => {
+    const item = document.createElement('div');
+    item.className = 'col-item';
+    item.style.borderColor = accent;
+    item.innerHTML = `
+      <img src="${src}" alt="Фото ${i+1}" loading="lazy" onerror="this.parentElement.style.display='none'">
+      <div class="col-overlay"></div>
+    `;
+    item.addEventListener('click', () => openLightbox(src));
+    grid.appendChild(item);
+  });
+}
+
+// ── Lightbox ──
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ── Confetti ──
+function spawnConfetti() {
+  const items = ['🌸','💜','✨','🌷','🥂','💐','🎀','⭐'];
+  for (let i = 0; i < 28; i++) {
+    const c = document.createElement('span');
+    c.style.cssText = `position:fixed;left:${20+Math.random()*60}vw;top:${15+Math.random()*40}vh;font-size:${1+Math.random()*1.4}rem;pointer-events:none;z-index:9999;opacity:0;animation:fall ${2.5+Math.random()*2}s linear ${Math.random()*0.6}s forwards`;
+    c.textContent = items[Math.floor(Math.random()*items.length)];
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 5000);
+  }
+}
+
+// ── Intro petals ──
+(function() {
+  const c = document.getElementById('introPetals');
+  const e = ['🌸','🌷','✿','❀','🌺'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('span');
+    p.className = 'fp';
+    p.textContent = e[Math.floor(Math.random()*e.length)];
+    p.style.cssText = `left:${Math.random()*100}vw;animation-duration:${7+Math.random()*9}s;animation-delay:${Math.random()*10}s;font-size:${0.9+Math.random()*1.1}rem`;
+    c.appendChild(p);
+  }
+})();
 </script>
 </body>
 </html>
